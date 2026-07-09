@@ -1,0 +1,6 @@
+---
+- name: Include Jenkins configuration tasks
+  include_tasks: config.yml
+
+- name: Include Jenkins plugin tasks
+  include_tasks: plugins.yml

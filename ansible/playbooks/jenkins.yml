@@ -1,0 +1,10 @@
+---
+- name: Install Jenkins and configure it
+  hosts: jenkins
+  become: true
+  roles:
+    - role: common
+    - role: geerlingguy.java
+    - role: geerlingguy.jenkins
+    - role: geerlingguy.docker
+    - role: jenkins

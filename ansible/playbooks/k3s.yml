@@ -1,0 +1,9 @@
+---
+- name: Install k3s and configure cluster
+  hosts: k3s
+  become: true
+  collections:
+    - kubernetes.core
+  roles:
+    - role: common
+    - role: k3s

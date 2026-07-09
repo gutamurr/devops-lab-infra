@@ -1,0 +1,9 @@
+---
+- name: Include k3s installation tasks
+  include_tasks: install.yml
+
+- name: Include Helm tasks
+  include_tasks: helm.yml
+
+- name: Include ingress tasks
+  include_tasks: ingress.yml

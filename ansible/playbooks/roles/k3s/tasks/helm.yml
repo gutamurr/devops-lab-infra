@@ -1,0 +1,36 @@
+---
+- name: Check if Helm is installed
+  stat:
+    path: /usr/local/bin/helm
+  register: helm_bin
+
+- name: Check Helm major version
+  shell: helm version --short 2>/dev/null | grep -E '^v3\.' >/dev/null 2>&1
+  register: helm_version_check
+  changed_when: false
+  failed_when: false
+
+- name: Download Helm install script
+  get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: '0700'
+  when: not helm_bin.stat.exists or helm_version_check.rc != 0
+
+- name: Install Helm v3
+  command: /tmp/get_helm.sh
+  when: not helm_bin.stat.exists or helm_version_check.rc != 0
+
+- name: Update Helm repositories
+  shell: helm repo update
+  changed_when: false
+
+- name: Check if Helm diff plugin is installed
+  shell: helm plugin list | grep -E '^diff\s' >/dev/null 2>&1
+  register: helm_diff_plugin_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Helm diff plugin
+  shell: helm plugin install https://github.com/databus23/helm-diff --version {{ helm_version }}
+  when: helm_diff_plugin_check.rc != 0

@@ -1,0 +1,2 @@
+jenkins ansible_host=192.168.254.10 ansible_user=vagrant ansible_ssh_private_key_file=~/Projects/devops-lab-infra/vagrant/.vagrant/machines/jenkins-node/virtualbox/private_key
+k3s ansible_host=192.168.254.11 ansible_user=vagrant ansible_ssh_private_key_file=~/Projects/devops-lab-infra/vagrant/.vagrant/machines/app-node/virtualbox/private_key

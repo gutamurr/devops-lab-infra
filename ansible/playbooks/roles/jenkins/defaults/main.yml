@@ -1,0 +1,6 @@
+---
+jenkins_admin_password: admin
+jenkins_plugins:
+  - job-dsl
+  - workflow-aggregator
+  - git

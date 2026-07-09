@@ -1,0 +1,35 @@
+---
+- name: Check if Traefik deployment exists
+  kubernetes.core.k8s_info:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    kind: Deployment
+    namespace: kube-system
+    name: traefik
+  register: traefik_check
+  failed_when: false
+  changed_when: false
+
+- name: Disable traefik in k3s
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: absent
+    api_version: apps/v1
+    kind: Deployment
+    namespace: kube-system
+    name: traefik
+  when: traefik_check is defined and traefik_check.result is defined and (traefik_check.result | length > 0)
+
+- name: Install Ingress Nginx Controller
+  kubernetes.core.helm:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    name: ingress-nginx
+    chart_ref: ingress-nginx/ingress-nginx
+    release_namespace: ingress-nginx
+    create_namespace: true
+    state: present
+    values:
+      controller:
+        extraArgs:
+          update-status: "false"
+        service:
+          type: NodePort

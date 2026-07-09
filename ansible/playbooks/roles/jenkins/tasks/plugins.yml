@@ -1,0 +1,9 @@
+---
+- name: Install Jenkins plugins
+  jenkins_plugin:
+    name: "{{ item }}"
+    state: present
+    url: http://localhost:8080
+    url_username: admin
+    url_password: "{{ jenkins_admin_password }}"
+  loop: "{{ jenkins_plugins }}"
