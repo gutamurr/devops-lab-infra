@@ -7,3 +7,9 @@
 
 - name: Include ingress tasks
   include_tasks: ingress.yml
+
+- name: Include Monitoring tasks
+  include_tasks: monitoring.yml
+
+- name: Include UFW tasks
+  include_tasks: ufw.yml
