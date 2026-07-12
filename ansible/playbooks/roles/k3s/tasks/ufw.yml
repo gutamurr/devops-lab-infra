@@ -1,0 +1,19 @@
+---
+- name: UFW - Set default deny incoming
+  ufw:
+    default: deny
+    direction: incoming
+
+- name: UFW - Allow ingress HTTP/HTTPS ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - 22
+    - 80
+    - 443
+
+- name: UFW - Enable UFW
+  ufw:
+    state: enabled
