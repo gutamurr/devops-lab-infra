@@ -1,0 +1,83 @@
+---
+- name: Detect IP bridged (exclude NAT)
+  set_fact:
+    node_ip: "{{ item }}"
+  loop: "{{ ansible_all_ipv4_addresses }}"
+  when: not item.startswith('10.')
+
+- name: Add Prometheus Community Helm repository
+  shell: |
+    if ! helm repo list | awk '{print $1}' | grep -qx 'prometheus-community'; then
+      helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    fi
+  register: prometheus_repo_result
+  changed_when: false
+  failed_when: prometheus_repo_result.rc != 0 and 'already exists' not in prometheus_repo_result.stderr
+
+- name: Update Helm repositories
+  shell: helm repo update
+  changed_when: false
+
+- name: Wait for Nginx Ingress controller pods to be ready
+  ansible.builtin.command:
+    cmd: >
+      kubectl wait --namespace ingress-nginx
+      --for=condition=ready pod
+      --selector=app.kubernetes.io/component=controller
+      --timeout=180s
+  environment:
+    KUBECONFIG: "/etc/rancher/k3s/k3s.yaml"
+  register: wait_result
+  changed_when: false
+
+- name: Install Kube-Prometheus-Stack Helm chart
+  kubernetes.core.helm:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    name: kube-prometheus-stack
+    chart_ref: prometheus-community/kube-prometheus-stack
+    release_namespace: monitoring
+    create_namespace: true
+    state: present
+    values:
+      prometheus:
+        prometheusSpec:
+          serviceMonitorSelectorNilUsesHelmValues: false
+          podMonitorSelectorNilUsesHelmValues: false
+          ruleSelectorNilUsesHelmValues: false
+        ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - prometheus.{{ node_ip }}.nip.io
+            paths:
+              - /
+            pathType: Prefix
+      grafana:
+        adminUser: "admin"
+        adminPassword: "admin"
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          hosts:
+            - grafana.{{ node_ip }}.nip.io
+          paths:
+            - path: /
+              pathType: Prefix
+      alertmanager:
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          hosts:
+            - alertmanager.{{ node_ip }}.nip.io
+          paths:
+            - /
+          pathType: Prefix
+
+- name: Show URL
+  debug:
+    msg:
+      - "=========================================="
+      - "Grafana:    http://grafana.{{ node_ip }}.nip.io"
+      - "Prometheus: http://prometheus.{{ node_ip }}.nip.io"
+      - "Alertmanager: http://alertmanager.{{ node_ip }}.nip.io"
+      - "=========================================="
