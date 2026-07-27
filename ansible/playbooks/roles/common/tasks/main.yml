@@ -4,10 +4,6 @@
     update_cache: true
     cache_valid_time: 3600
 
-- name: Upgrade installed packages
-  apt:
-    upgrade: safe
-
 - name: Install common packages
   apt:
     name: "{{ common_packages }}"
