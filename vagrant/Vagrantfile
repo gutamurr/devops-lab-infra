@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "jenkins-node" do |jenkins|
-    configure_vm(jenkins.vm, "jenkins-node", "#{base_ip}.10", 2048, 2, bridge_name)
+    configure_vm(jenkins.vm, "jenkins-node", "#{base_ip}.10", 4096, 2, bridge_name)
     jenkins.vm.network "forwarded_port", guest: 8080, host: jenkins_host_port.to_i
   end
 
