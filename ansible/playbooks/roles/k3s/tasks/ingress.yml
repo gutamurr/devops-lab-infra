@@ -1,24 +1,4 @@
 ---
-- name: Check if Traefik deployment exists
-  kubernetes.core.k8s_info:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    kind: Pod
-    namespace: kube-system
-    name: traefik
-  register: traefik_check
-  failed_when: false
-  changed_when: false
-
-- name: Disable traefik in k3s
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: absent
-    api_version: apps/v1
-    kind: Pod
-    namespace: kube-system
-    name: traefik
-  when: traefik_check is defined and traefik_check.result is defined and (traefik_check.result | length > 0)
-
 - name: Add Ingress Nginx Helm repository
   shell: |
     if ! helm repo list | awk '{print $1}' | grep -qx 'ingress-nginx'; then
