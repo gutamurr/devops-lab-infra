@@ -4,3 +4,14 @@
 
 - name: Include Jenkins plugin tasks
   include_tasks: plugins.yml
+
+- name: Add jenkins user to docker group
+  user:
+    name: jenkins
+    groups: docker
+    append: yes
+
+- name: Restart Jenkins
+  service:
+    name: jenkins
+    state: restarted
