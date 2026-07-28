@@ -4,7 +4,7 @@ set -e
 BASE_DIR="${1:-.}"
 VAGRANT_DIR="$BASE_DIR/vagrant"
 
-echo "==> Start VMs on $VAGRANT_DIR"
+echo "==> Halt VMs from $VAGRANT_DIR"
 if [ -f "$VAGRANT_DIR/Vagrantfile" ]; then
     (cd "$VAGRANT_DIR" && vagrant halt)
 else
