@@ -7,4 +7,6 @@
     - role: geerlingguy.java
     - role: geerlingguy.jenkins
     - role: geerlingguy.docker
+    - role: geerlingguy.nodejs
+    - role: gutamurr.smee
     - role: jenkins
