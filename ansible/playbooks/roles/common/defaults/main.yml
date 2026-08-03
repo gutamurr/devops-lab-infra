@@ -1,7 +1,8 @@
 ---
-common_packages:
-  - curl
-  - ca-certificates
-  - gnupg
-  - lsb-release
-  - git
+  common_packages:
+    - curl
+    - ca-certificates
+    - gnupg
+    - lsb-release
+    - git
+    - gettext-base
