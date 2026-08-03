@@ -1,0 +1,8 @@
+---
+  - name: Install Java
+    ansible.builtin.apt:
+      name:
+        - fontconfig
+        - "openjdk-{{ java_version }}-jre"
+      state: present
+      update_cache: yes
