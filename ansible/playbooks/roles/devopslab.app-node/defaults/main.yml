@@ -1,0 +1,9 @@
+---
+  # K3s
+  k3s_install_url: https://get.k3s.io
+  k3s_kubeconfig_mode: "644"
+  k3s_version: v1.36.2+k3s1
+
+  # Grafana vars
+  grafana_admin_user: admin
+  grafana_admin_password: admin
