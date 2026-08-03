@@ -1,0 +1,38 @@
+---
+  # Java vars
+  java_version: 21
+
+  # Kubectl vars
+  kubectl_version: v1.36.3
+
+  # Jenkins vars
+  jenkins_version: 2026
+
+  # Jenkins plugins to install
+  jenkins_plugins:
+    - name: job-dsl
+      version: "3654.vdf58f53e2d15"
+    - name: workflow-aggregator
+      version: "608.v67378e9d3db_1"
+    - name: configuration-as-code
+      version: "2108.v02b_430db_0cf5"
+    - name: github
+      version: "1.47.0"
+    - name: git
+      version: "5.10.1"
+
+  # Jenkins admin credentials
+  jenkins_admin_username: admin
+  jenkins_admin_password: admin
+
+  jenkins_home: /var/lib/jenkins
+  jenkins_war_path: /usr/share/java/jenkins.war
+
+  # Jenkins HTTP port
+  jenkins_http_port: 8080
+
+  # Jenkins Plugin Installation Manager version
+  jenkins_pim_version: 2.15.0
+
+  # JCasC configuration file path
+  jcasc_config_path: /var/lib/jenkins/casc_configs
