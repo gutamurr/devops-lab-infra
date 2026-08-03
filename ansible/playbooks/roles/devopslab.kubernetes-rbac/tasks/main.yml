@@ -1,0 +1,76 @@
+---
+  - name: Check, if python3-pip is installed
+    ansible.builtin.apt:
+      name: python3-pip
+      state: present
+      update_cache: true
+
+  - name: Install python-kubernetes
+    ansible.builtin.pip:
+      name: kubernetes
+      extra_args: "--break-system-packages"
+
+  - name: Create devops-lab namespace
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig }}"
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: devops-lab
+
+  - name: Create Jenkins ServiceAccount
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig }}"
+      state: present
+      definition:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: jenkins-deployer
+          namespace: devops-lab
+
+  - name: Create RoleBinding
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig }}"
+      state: present
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: jenkins-deployer-binding
+          namespace: devops-lab
+        subjects:
+          - kind: ServiceAccount
+            name: jenkins-deployer
+            namespace: devops-lab
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: edit
+  
+  - name: Generate ServiceAccount token
+    ansible.builtin.command: >
+      kubectl create token jenkins-deployer
+      -n devops-lab
+      --duration=87600h
+    register: jenkins_token
+    changed_when: false
+
+  - name: Read k3s cluster CA-certificate
+    ansible.builtin.slurp:
+      src: /var/lib/rancher/k3s/server/tls/server-ca.crt
+    register: ca_cert_raw
+
+  - name: Build kubeconfig by template
+    ansible.builtin.template:
+      src: jenkins-kubeconfig.yaml.j2
+      dest: /tmp/jenkins-kubeconfig.yaml
+      mode: '0600'
+
+  - name: Copy file to the local machine
+    ansible.builtin.fetch:
+      src: /tmp/jenkins-kubeconfig.yaml
+      dest: "{{ playbook_dir }}/files/jenkins-kubeconfig.yaml"
+      flat: true
