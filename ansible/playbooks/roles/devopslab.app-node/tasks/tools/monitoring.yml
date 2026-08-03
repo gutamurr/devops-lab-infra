@@ -1,0 +1,77 @@
+---
+  - name: Add Prometheus Community Helm repository
+    ansible.builtin.shell: |
+      if ! helm repo list | awk '{print $1}' | grep -qx 'prometheus-community'; then
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      fi
+    register: prometheus_repo_result
+    changed_when: false
+    failed_when: prometheus_repo_result.rc != 0 and 'already exists' not in prometheus_repo_result.stderr
+
+  - name: Update Helm repositories
+    ansible.builtin.shell: helm repo update
+    changed_when: false
+
+  - name: Wait for Nginx Ingress controller pods to be ready
+    ansible.builtin.command:
+      cmd: >
+        kubectl wait --namespace ingress-nginx
+        --for=condition=ready pod
+        --selector=app.kubernetes.io/component=controller
+        --timeout=180s
+    environment:
+      KUBECONFIG: "{{ kubeconfig }}"
+    register: wait_result
+    changed_when: false
+
+  - name: Install Kube-Prometheus-Stack Helm chart
+    kubernetes.core.helm:
+      kubeconfig: "{{ kubeconfig }}"
+      name: kube-prometheus-stack
+      chart_ref: prometheus-community/kube-prometheus-stack
+      release_namespace: monitoring
+      create_namespace: true
+      state: present
+      values:
+        prometheus:
+          prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+          ingress:
+              enabled: true
+              ingressClassName: nginx
+              hosts:
+                - prometheus.{{ vagrant_base_ip }}.11.nip.io
+              paths:
+                - /
+              pathType: Prefix
+        grafana:
+          adminUser: "{{ grafana_admin_user }}"
+          adminPassword: "{{ grafana_admin_password }}"
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - grafana.{{ vagrant_base_ip }}.11.nip.io
+            paths:
+              - path: /
+                pathType: Prefix
+        alertmanager:
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - alertmanager.{{ vagrant_base_ip }}.11.nip.io
+            paths:
+              - /
+            pathType: Prefix
+
+  - name: Show URL
+    ansible.builtin.debug:
+      msg:
+        - "=========================================="
+        - "Grafana:    http://grafana.{{ vagrant_base_ip }}.11.nip.io"
+        - "Prometheus: http://prometheus.{{ vagrant_base_ip }}.11.nip.io"
+        - "Alertmanager: http://alertmanager.{{ vagrant_base_ip }}.11.nip.io"
+        - "=========================================="
