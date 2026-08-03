@@ -1,0 +1,14 @@
+---
+  - name: Create apt keyring directory
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
+
+  - include_tasks: tools/java.yml
+  - include_tasks: install.yml
+  - include_tasks: config/plugins.yml
+  - include_tasks: config/jcasc.yml
+  - include_tasks: tools/docker.yml
+  - include_tasks: tools/nodejs.yml
+  - include_tasks: tools/kubectl.yml
