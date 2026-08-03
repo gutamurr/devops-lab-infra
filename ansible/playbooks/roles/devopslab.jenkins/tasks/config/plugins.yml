@@ -1,0 +1,23 @@
+---
+  - name: Create plugins.txt file
+    ansible.builtin.template:
+      src: plugins.txt.j2
+      dest: /tmp/plugins.txt
+      mode: '0644'
+
+  - name: Install Jenkins Plugin Installation Manager
+    ansible.builtin.get_url:
+      url: "https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/{{ jenkins_pim_version }}/jenkins-plugin-manager-{{ jenkins_pim_version }}.jar"
+      dest: /opt/jenkins-plugin-manager.jar
+      mode: '0644'
+  
+  - name: Install Jenkins plugins
+    ansible.builtin.command:
+      cmd: >
+        java -jar /opt/jenkins-plugin-manager.jar
+        --war "{{ jenkins_war_path }}"
+        --plugin-file /tmp/plugins.txt
+        --plugin-download-directory "{{ jenkins_home }}/plugins"
+    register: plugin_install
+    changed_when: "'Downloading plugin' in plugin_install.stdout"
+    notify: Restart Jenkins
