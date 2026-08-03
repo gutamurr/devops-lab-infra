@@ -1,0 +1,53 @@
+jenkins:
+  systemMessage: "DevOps Lab Project by Gene"
+  numExecutors: 2
+  mode: NORMAL
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "{{ jenkins_admin_username }}"
+          password: "{{ jenkins_admin_password }}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - file:
+              scope: GLOBAL
+              id: "k3s-kubeconfig"
+              fileName: "config"
+              secretBytes: "${readFileBase64:{{ jcasc_config_path }}/files/jenkins-kubeconfig.yaml}"
+
+          - usernamePassword:
+              scope: GLOBAL
+              id: "ghcr-creds"
+              username: "{{ GHCR_USER }}"
+              password: "{{ GHCR_TOKEN }}"
+
+jobs:
+  - script: >
+      pipelineJob('lab-app-pipeline') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/gutamurr/devops-lab-app.git')
+                }
+                branch('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+        triggers {
+          githubPush()
+        }
+      }
