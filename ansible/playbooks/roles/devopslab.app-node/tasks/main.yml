@@ -1,0 +1,6 @@
+---
+  - include_tasks: install.yml
+  - include_tasks: tools/helm.yml
+  - include_tasks: tools/ingress.yml
+  - include_tasks: tools/monitoring.yml
+  - include_tasks: config/ufw.yml
