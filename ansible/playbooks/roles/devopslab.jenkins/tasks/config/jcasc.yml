@@ -1,0 +1,42 @@
+---
+  - name: Create systemd override directory for Jenkins
+    ansible.builtin.file:
+      path: /etc/systemd/system/jenkins.service.d
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+  - name: Create JCasC directory
+    ansible.builtin.file:
+      path: "{{ jcasc_config_path }}/files"
+      state: directory
+      owner: jenkins
+      group: jenkins
+      mode: "0755"
+
+  - name: Copy JCasC configuration
+    ansible.builtin.template:
+      src: jenkins.yaml.j2
+      dest: "{{ jcasc_config_path }}/jenkins.yaml"
+      owner: jenkins
+      group: jenkins
+      mode: "0644"
+
+  - name: Copy JCasC Secret files
+    ansible.builtin.copy:
+      src: files/jenkins-kubeconfig.yaml
+      dest: "{{ jcasc_config_path }}/files/jenkins-kubeconfig.yaml"
+      owner: jenkins
+      group: jenkins
+      mode: "0600"
+    
+  - name: Configure environment variable
+    ansible.builtin.template:
+      src: override.conf.j2
+      dest: /etc/systemd/system/jenkins.service.d/override.conf
+      owner: root
+      group: root
+      mode: "0644"
+    notify:
+      - Restart Jenkins after systemd reload
