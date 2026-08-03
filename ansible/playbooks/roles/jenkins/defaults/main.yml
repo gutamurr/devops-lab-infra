@@ -1,6 +1,0 @@
----
-jenkins_plugins:
-  - job-dsl
-  - workflow-aggregator
-  - git
-  - github
