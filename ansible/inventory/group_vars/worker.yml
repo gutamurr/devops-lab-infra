@@ -1,0 +1,9 @@
+# Ansible
+ansible_host: "{{ vagrant_base_ip }}.11"
+ansible_user: vagrant 
+ansible_ssh_private_key_file: ~/devops-lab-infra/vagrant/.vagrant/machines/app-node/virtualbox/private_key
+
+# Kubernetes
+kubeconfig: /etc/rancher/k3s/k3s.yaml
+certificate_authority_data: "{{ ca_cert_raw.content }}"
+jenkins_kubernetes_token: "{{ jenkins_token.stdout }}"

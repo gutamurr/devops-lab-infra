@@ -1,0 +1,2 @@
+# Base
+vagrant_base_ip: "{{ lookup('env', 'VAGRANT_BASE_IP') | default('192.168.254', true) }}"

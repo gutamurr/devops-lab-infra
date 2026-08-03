@@ -1,0 +1,4 @@
+# Ansible
+ansible_host: "{{ vagrant_base_ip }}.10"
+ansible_user: vagrant
+ansible_ssh_private_key_file: ~/devops-lab-infra/vagrant/.vagrant/machines/jenkins-node/virtualbox/private_key
