@@ -1,0 +1,20 @@
+---
+  - name: UFW - Set default deny incoming
+    ansible.builtin.ufw:
+      default: deny
+      direction: incoming
+
+  - name: UFW - Allow ingress HTTP/HTTPS ports
+    ansible.builtin.ufw:
+      rule: allow
+      port: "{{ item }}"
+      proto: tcp
+    loop:
+      - 22
+      - 80
+      - 443
+      - 6443
+
+  - name: UFW - Enable UFW
+    ansible.builtin.ufw:
+      state: enabled
